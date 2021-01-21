@@ -18,7 +18,7 @@ public class MapperUtil {
         return modelMapper.map(objectToBeConverted,(Type) objectToBeConverted.getClass());
     }
 
-/*
+
     public <T> T convertToEntity(Object objectToBeConverted, T convertedObject){
         return modelMapper.map(objectToBeConverted, (Type) convertedObject.getClass());
     }
@@ -26,7 +26,7 @@ public class MapperUtil {
     public <T> T convertToDto(Object objectToBeConverted, T convertedObject){
         return modelMapper.map(objectToBeConverted,(Type) objectToBeConverted.getClass());
     }
-*/
+
 
 
 }

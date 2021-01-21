@@ -44,7 +44,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDTO> listAllUsers() {
         List<User> list = userRepository.findAll(Sort.by("firstName"));
-        return list.stream().map(obj -> mapperUtil.convert(obj,new UserDTO())).collect(Collectors.toList());
+        return list.stream().map(obj -> mapperUtil.convert(obj,new UserDTO()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -81,13 +82,6 @@ public class UserServiceImpl implements UserService {
 
         return  findByUserName(dto.getUserName());
 
-//        userRepository.findByUserName(dto.getUserName()).setFirstName(user.getFirstName());
-//        userRepository.findByUserName(dto.getUserName()).setLastName(user.getLastName());
-//        userRepository.findByUserName(dto.getUserName()).setGender(user.getGender());
-//        userRepository.findByUserName(dto.getUserName()).setPhone(user.getPhone());
-//        userRepository.findByUserName(dto.getUserName()).setRole(user.getRole());
-//
-//        return userMapper.convertToDto(user);
     }
 
     @Override
@@ -116,7 +110,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDTO> listAllByRole(String role) {
 
         List<User> users = userRepository.findAllByRoleDescriptionIgnoreCase(role);
-        return users.stream().map(obj -> mapperUtil.convert(obj,new UserDTO()))
+        return users.stream().map(obj -> {return mapperUtil.convert(obj,new UserDTO());})
                 .collect(Collectors.toList());
     }
 
