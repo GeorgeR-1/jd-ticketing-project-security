@@ -25,7 +25,7 @@ public class UserPrincipal implements UserDetails {
         GrantedAuthority authority = new SimpleGrantedAuthority(this.user.getRole().getDescription());
         authorityList.add(authority);
 
-        //@ManytoMany
+        //@ManyToMany
 //        this.user.getRoles().forEach(role -> {
 //            GrantedAuthority authority = new SimpleGrantedAuthority(this.user.getRole().getDescription());
 //            authorityList.add(authority);

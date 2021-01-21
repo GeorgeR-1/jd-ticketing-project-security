@@ -15,6 +15,7 @@ import com.cybertek.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,21 +28,23 @@ public class UserServiceImpl implements UserService {
     private ProjectService projectService;
     private TaskService taskService;
     private MapperUtil mapperUtil;
+    private BCryptPasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, @Lazy ProjectService projectService, TaskService taskService, MapperUtil mapperUtil) {
+    public UserServiceImpl(UserRepository userRepository,@Lazy ProjectService projectService,
+                           TaskService taskService, MapperUtil mapperUtil,
+                           BCryptPasswordEncoder passwordEncoder) {
+
         this.userRepository = userRepository;
         this.projectService = projectService;
         this.taskService = taskService;
         this.mapperUtil = mapperUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public List<UserDTO> listAllUsers() {
         List<User> list = userRepository.findAll(Sort.by("firstName"));
-
-        return list.stream().map(obj ->{
-            return mapperUtil.convert(obj,new UserDTO());
-        }).collect(Collectors.toList());
+        return list.stream().map(obj -> mapperUtil.convert(obj,new UserDTO())).collect(Collectors.toList());
     }
 
     @Override
@@ -53,9 +56,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void save(UserDTO dto) {
-        User obj = mapperUtil.convert(dto,new User());
-        userRepository.save(obj);
 
+        User foundUser = userRepository.findByUserName(dto.getUserName());
+        dto.setEnabled(true);
+
+        User obj = mapperUtil.convert(dto,new User());
+        obj.setPassWord(passwordEncoder.encode(obj.getPassWord()));
+
+        userRepository.save(obj);
     }
 
     @Override
