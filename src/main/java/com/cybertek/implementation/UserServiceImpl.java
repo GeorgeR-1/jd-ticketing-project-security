@@ -27,32 +27,35 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private ProjectService projectService;
     private TaskService taskService;
-    private MapperUtil mapperUtil;
     private BCryptPasswordEncoder passwordEncoder;
+    private UserMapper userMapper;
+    private MapperUtil mapperUtil;
 
-    public UserServiceImpl(UserRepository userRepository,@Lazy ProjectService projectService,
-                           TaskService taskService, MapperUtil mapperUtil,
-                           BCryptPasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, @Lazy ProjectService projectService,
+                           TaskService taskService, BCryptPasswordEncoder passwordEncoder,
+                           UserMapper userMapper, MapperUtil mapperUtil) {
 
         this.userRepository = userRepository;
         this.projectService = projectService;
         this.taskService = taskService;
-        this.mapperUtil = mapperUtil;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
+        this.mapperUtil = mapperUtil;
     }
 
     @Override
     public List<UserDTO> listAllUsers() {
-        List<User> list = userRepository.findAll(Sort.by("firstName"));
-        return list.stream().map(obj -> mapperUtil.convert(obj,new UserDTO()))
-                .collect(Collectors.toList());
+        List<User> userList= userRepository.findAll(Sort.by("firstName"));
+        return userList.stream()
+                .map(obj -> userMapper.convertToDto(obj)).collect(Collectors.toList());
+
     }
 
     @Override
     public UserDTO findByUserName(String username) {
         User user = userRepository.findByUserName(username);
 
-        return mapperUtil.convert(user,new UserDTO());
+        return userMapper.convertToDto(user);
     }
 
     @Override
@@ -61,7 +64,7 @@ public class UserServiceImpl implements UserService {
         User foundUser = userRepository.findByUserName(dto.getUserName());
         dto.setEnabled(true);
 
-        User obj = mapperUtil.convert(dto,new User());
+        User obj = userMapper.convertToEntity(dto);
         obj.setPassWord(passwordEncoder.encode(obj.getPassWord()));
 
         userRepository.save(obj);
@@ -73,8 +76,10 @@ public class UserServiceImpl implements UserService {
         //Find current user
         User user = userRepository.findByUserName(dto.getUserName());
         //Map update user dto to entity object
-        User convertedUser = mapperUtil.convert(dto,new User());
+        User convertedUser = userMapper.convertToEntity(dto);
 
+        convertedUser.setPassWord(passwordEncoder.encode(convertedUser.getPassWord()));
+        convertedUser.setEnabled(true);
         //set id to the converted object
         convertedUser.setId(user.getId());
         //save updated user
@@ -110,7 +115,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDTO> listAllByRole(String role) {
 
         List<User> users = userRepository.findAllByRoleDescriptionIgnoreCase(role);
-        return users.stream().map(obj -> {return mapperUtil.convert(obj,new UserDTO());})
+        return users.stream().map(obj -> {return userMapper.convertToDto(obj);})
                 .collect(Collectors.toList());
     }
 
